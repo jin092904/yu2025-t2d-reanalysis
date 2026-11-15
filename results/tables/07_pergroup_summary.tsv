@@ -1,0 +1,16 @@
+item	value
+seed100_n_LASSO	11
+seed100_n_SVM-RFE	35
+seed100_n_RF	10
+seed100_hub	CD52,FHOD3
+seed100_test_OH	6
+seed100_test_OT2D	5
+seed100_test_AUC_AIM2	0.967
+seed100_test_AUC_FHOD3	1.000
+seeds_both_AIM2_FHOD3	2
+seeds_exactly_AIM2_FHOD3	0
+seeds_no_common_gene	2
+top_gene	FHOD3
+top_gene_pct	30
+FHOD3_pct	30
+AIM2_pct	10

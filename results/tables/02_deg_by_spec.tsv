@@ -1,0 +1,7 @@
+run	language	combat_group	protein_coding_only	kind	genes	deg	up	paper_recovered	extra
+R	R	없음	아니오	사전 명세	39376	4	1	0	4
+R_pc	R	없음	예	탐색	19416	0	0	0	0
+R_group	R	있음	아니오	탐색	39376	620	430	201	419
+R_group_pc	R	있음	예	탐색(재현)	19416	209	147	209	0
+py	Python	없음	아니오	사전 명세	39376	1	0	0	1
+py_group_pc	Python	있음	예	탐색(재현)	19416	202	144	200	2

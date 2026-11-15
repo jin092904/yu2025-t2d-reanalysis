@@ -1,0 +1,7 @@
+set	model	auc	lo	hi	n_OH	n_OT2D	paper_auc
+train	AIM2	0.97	0.904017780197086	1	10	10	1
+train	FHOD3	1	1	1	10	10	1
+train	AIM2+FHOD3	1	1	1	10	10	1
+test	AIM2	1	1	1	8	3	0.933
+test	FHOD3	1	1	1	8	3	1
+test	AIM2+FHOD3	1	1	1	8	3	1

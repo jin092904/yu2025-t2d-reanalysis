@@ -1,0 +1,7 @@
+set	model	auc	lo	hi
+train	AIM2	0.97	0.9040177801970863	1.0
+train	FHOD3	1.0	1.0	1.0
+train	AIM2+FHOD3	1.0	1.0	1.0
+test	AIM2	1.0	1.0	1.0
+test	FHOD3	1.0	1.0	1.0
+test	AIM2+FHOD3	1.0	1.0	1.0

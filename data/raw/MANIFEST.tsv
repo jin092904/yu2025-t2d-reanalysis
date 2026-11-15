@@ -1,0 +1,13 @@
+file	bytes	md5	url	downloaded
+data/raw/GSE175495_raw_counts_GRCh38.p13_NCBI.tsv.gz	1916155	e57bc8004a459fa4de85622180e587a2	https://ftp.ncbi.nlm.nih.gov/geo/rnaseq_counts/GSE175nnn/GSE175495_raw_counts_GRCh38.p13_NCBI.tsv.gz	2026-11-09 12:22
+data/raw/GSE175495_series_matrix.txt.gz	6991	0d94abe86d23aa557c387c4b01c395c1	https://ftp.ncbi.nlm.nih.gov/geo/series/GSE175nnn/GSE175495/matrix/GSE175495_series_matrix.txt.gz	2026-11-09 12:22
+data/raw/GSE141432_raw_counts_GRCh38.p13_NCBI.tsv.gz	1178812	c183f2352c5db44b5d50c00df8d7b2b0	https://ftp.ncbi.nlm.nih.gov/geo/rnaseq_counts/GSE141nnn/GSE141432_raw_counts_GRCh38.p13_NCBI.tsv.gz	2026-11-09 12:22
+data/raw/GSE141432_series_matrix.txt.gz	3976	983f795618a9d105d04382455cb1f6bc	https://ftp.ncbi.nlm.nih.gov/geo/series/GSE141nnn/GSE141432/matrix/GSE141432_series_matrix.txt.gz	2026-11-09 12:22
+data/raw/GSE166047_raw_counts_GRCh38.p13_NCBI.tsv.gz	953145	e8c1de161afe88fa06e20a482f717f5a	https://ftp.ncbi.nlm.nih.gov/geo/rnaseq_counts/GSE166nnn/GSE166047_raw_counts_GRCh38.p13_NCBI.tsv.gz	2026-11-09 12:22
+data/raw/GSE166047_series_matrix.txt.gz	4364	a64325875e1d137f1a35d6ffc88babd8	https://ftp.ncbi.nlm.nih.gov/geo/series/GSE166nnn/GSE166047/matrix/GSE166047_series_matrix.txt.gz	2026-11-09 12:22
+data/raw/Human.GRCh38.p13.annot.tsv.gz	4417321	9174dd0204362085a78052c6f19e1196	https://www.ncbi.nlm.nih.gov/geo/download/?format=file&type=rnaseq_counts&file=Human.GRCh38.p13.annot.tsv.gz	2026-11-09 12:22
+data/raw/GSE175495_Adipose_simple_counts.txt.gz	1484332	04c86e024c8f8b937db39862b5f2713b	https://ftp.ncbi.nlm.nih.gov/geo/series/GSE175nnn/GSE175495/suppl/GSE175495_Adipose_simple_counts.txt.gz	2026-11-09 12:22
+paper/s41598-025-29141-9.pdf	3574139	f4d1ecd37aba65640d4373f342130e8d	https://www.nature.com/articles/s41598-025-29141-9.pdf	2026-11-09 12:22
+paper/PMC12748723.xml	111946	5c40626061d1b3fa9b3137922aff5c62	https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=pmc&id=12748723&rettype=xml	2026-11-09 12:22
+paper/41598_2025_29141_MOESM1_ESM.docx	84163	0c72c4b2b5beaa1768f1be5dd3b2da88	https://static-content.springer.com/esm/art%3A10.1038%2Fs41598-025-29141-9/MediaObjects/41598_2025_29141_MOESM1_ESM.docx	2026-11-09 12:22
+paper/41598_2025_29141_MOESM2_ESM.xlsx	33806	0fc5523d4823b362861064f4cb4dcd81	https://static-content.springer.com/esm/art%3A10.1038%2Fs41598-025-29141-9/MediaObjects/41598_2025_29141_MOESM2_ESM.xlsx	2026-11-09 12:22

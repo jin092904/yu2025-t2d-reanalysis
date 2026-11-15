@@ -1,0 +1,26 @@
+# Only code, result tables, processed data and the manuscript figures are tracked.
+
+/*
+!/.gitignore
+!/README.md
+!/LICENSE
+!/requirements.txt
+!/src/
+!/results/
+/results/figures/
+
+!/data/
+/data/*
+!/data/processed/
+!/data/raw/
+/data/raw/*
+!/data/raw/MANIFEST.tsv
+
+!/manuscript/
+/manuscript/*
+!/manuscript/figures/
+/manuscript/figures/old/
+
+__pycache__/
+.ipynb_checkpoints/
+.Rhistory
