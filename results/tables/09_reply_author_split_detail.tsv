@@ -1,0 +1,26 @@
+item	value
+train_OH	12
+train_OT2D	8
+test_OH	6
+test_OT2D	5
+test_gsm	GSM5335458,GSM5335459,GSM5335463,GSM5335466,GSM5060718,GSM5060721,GSM4202710,GSM4202711,GSM4202712,GSM4202713,GSM4202725
+lambda_min	0.01435525
+lambda_pub_on_path	0.013079969
+lambda_pub_rel_diff	-5.66e-08
+lambda_steps_min_to_pub	2
+lasso_at_min	STMN2,PPP4R4,UGT1A1,CLEC12A,CCL18,PHLDA2,PROK1,CHI3L1,PNPLA1,CD52,AIM2,FHOD3
+lasso_at_pub	STMN2,PPP4R4,UGT1A1,CLEC12A,CCL18,PHLDA2,PROK1,CHI3L1,PNPLA1,CD52,AIM2,FHOD3
+lasso_at_pub_vs_published	11 of 11 published; extra PHLDA2
+svm_sigma	0.004400041218
+svm_C	0.5
+rfe_best_size	30
+rfe_acc_best	1
+rfe_acc_23	0.95
+rfe_genes_vs_published	23 of 23 published in our 30
+rf10	FHOD3,PNPLA1,NFE2,LRRC3C,CD52,TTC36,AIM2,SNCA,BCL2A1,IFIT1B
+rf10_vs_published	2 of 10
+hub_at_min	PNPLA1,CD52,AIM2,FHOD3
+hub_with_lasso_at_pub	PNPLA1,CD52,AIM2,FHOD3
+test_auc_AIM2	0.933
+test_auc_FHOD3	1
+generated	2026-11-17 15:50 KST

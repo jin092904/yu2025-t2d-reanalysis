@@ -1,4 +1,4 @@
-"""Stage 1: GEO 시료 정보로 표본표를 만들고, 논문 군(OH·OT2D)의 count 를 하나로 합친다.
+"""GEO 시료 정보로 표본표를 만들고, 논문 군(OH·OT2D)의 count 를 하나로 합친다.
 
 출력: data/processed/samples.tsv (세 GEO 시리즈 전 시료), data/processed/counts_main.tsv.gz (GeneID × 분석 시료)
 실행: python src/py/01_data.py  (프로젝트 폴더에서)

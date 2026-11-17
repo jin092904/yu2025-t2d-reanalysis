@@ -1,6 +1,6 @@
-"""Stage 7: 논문 Results 의 분할(군마다 65% → 검증 OH 6 · OT2D 5)과 같은 구성의 분할만 골라 허브 유전자 빈도를 다시 센다.
+"""논문 Results 의 분할(군마다 65%, 검증 OH 6 · OT2D 5)과 같은 구성의 분할만 골라 허브 유전자 빈도를 다시 센다.
 
-새 계산은 없다. Stage 3·4 의 시드 1~100 결과(03_seed_stability, 04_test_auc_100seeds_R)를 검증 구성으로 나눠 요약한다.
+새 계산은 없다. 03_ml.R · 04_roc.R 의 시드 1~100 결과(03_seed_stability, 04_test_auc_100seeds_R)를 검증 구성으로 나눠 요약한다.
 단순 무작위 분할을 검증 구성으로 조건부로 묶으면, 그 안에서는 군별 무작위 분할과 분포가 같다.
 출력: results/tables/07_hub_by_split_composition.tsv
 실행: python src/py/07_split_composition.py  (프로젝트 폴더에서)

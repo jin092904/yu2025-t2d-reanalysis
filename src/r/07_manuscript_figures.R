@@ -1,9 +1,10 @@
-# Stage 7: Matters Arising 원고용 영문 그림(ggplot2). 저장된 결과 파일만 읽는다(새 수치 없음).
+# Matters Arising 원고용 영문 그림(ggplot2). 저장된 결과 파일만 읽는다(새 수치 없음).
 # 양식은 원 논문 그림 6·7(ggpubr 상자그림, 정상 파랑 · 당뇨 빨강, 비교 괄호와 P 값)에 맞춘다.
 #   Figure 1 코호트 안 비교: (a, b) GSE141432 FHOD3 · AIM2, (c, d) GSE166047 FHOD3 · AIM2
-#   Figure 2 재현 · 분할 · 누수: (a) ComBat-seq 설정별 DEG 수, (b) 분할 방식 두 가지에서 세 방법 공통 비율, (c) 누수 비교
+#   Figure 2 재현 · 분할 · 누수: (a) ComBat-seq 설정별 DEG 수, (b) 저자 코드 · 군별 분할 100번에서 세 방법 공통 비율, (c) 누수 비교
+#   (원저자 답장으로 확인된 설정 · 분할 · 코드: 09_reply_*.R 출력을 읽는다)
 #   Supplementary Figure 1: 논문 DEG 가 코호트 안 비교마다 논문과 같은 방향인 비율
-# 출력: manuscript/figures/Figure1_v7 · Figure2_v7 · SupplementaryFigure1_v1 .{pdf,png} (cairo 벡터 PDF + 600 dpi PNG)
+# 출력: manuscript/figures/Figure1_v7 · Figure2_v8 · SupplementaryFigure1_v1 .{pdf,png} (cairo 벡터 PDF + 600 dpi PNG)
 # 실행: Rscript src/r/07_manuscript_figures.R  (프로젝트 폴더에서)
 suppressPackageStartupMessages({library(ggplot2); library(ggpubr); library(patchwork)})
 
@@ -27,11 +28,15 @@ pfmt <- function(p) {  # P < 0.001 은 "8.2 × 10⁻⁵" 꼴
 }
 
 ## Figure 2: 재현 · 분할 · 누수
-# (a) R 네 설정. 논문 목록에 든 DEG(빨강)와 나머지(회색)를 쌓은 막대. Python 결과는 Methods 에 적는다.
-spec <- rd("02_deg_by_spec.tsv")
-COND <- c(R = "Batch only\n(as written)", R_pc = "Protein-coding\nonly", R_group = "Group\ncovariate", R_group_pc = "Group covariate\n+ protein-coding")
-sr <- spec[spec$run %in% names(COND), ]
-sr$cond <- factor(COND[sr$run], levels = rev(COND))
+# (a) R 네 설정: 글자 그대로(배치만) · protein-coding 만 · 저자 답장 설정(group 공변량 + 모두 0 인 유전자 제거) · 여기에 protein-coding.
+#     논문 목록에 든 DEG(빨강)와 나머지(회색)를 쌓은 막대.
+spec <- rd("02_deg_by_spec.tsv"); gf <- rd("09_reply_gene_filter.tsv")
+pick <- function(d, v) d[d[[1]] == v, c("deg", "paper_recovered")]   # 첫 열(run · filter)로 고른다
+sr <- rbind(cbind(cond = "Batch only\n(as written)", pick(spec, "R")),
+            cbind(cond = "Protein-coding\nonly", pick(spec, "R_pc")),
+            cbind(cond = "Group covariate,\nzero filter", pick(gf, "allzero_post")),
+            cbind(cond = "Group covariate, zero\nfilter, protein-coding", pick(gf, "pc_allzero_post")))
+sr$cond <- factor(sr$cond, levels = rev(sr$cond))
 sa <- rbind(data.frame(cond = sr$cond, part = "In published list", n = sr$paper_recovered),
             data.frame(cond = sr$cond, part = "Other DEGs", n = sr$deg - sr$paper_recovered))
 sa$part <- factor(sa$part, levels = c("Other DEGs", "In published list"))   # 빨강이 0 쪽(왼쪽)
@@ -48,42 +53,29 @@ pa <- ggplot(sa, aes(x = n, y = cond, fill = part)) +
   theme(legend.position = c(0.72, 0.84), legend.background = element_blank(), legend.text = element_text(size = 6.5),
         legend.key.size = unit(2.6, "mm"))
 
-# (b) 분할 방식 두 가지: Methods 의 단순 무작위(사전 정의)와 Results 의 군마다 65%(07_pergroup_split.R)
-hubs_of <- function(f) {
-  st <- rd(f, colClasses = "character"); st <- st[st$method == "hub", ]
-  lapply(split(st$genes, st$seed), function(g) if (g == "") character(0) else strsplit(g, ",")[[1]])
-}
-freq_of <- function(h) { tb <- table(unlist(h)) / length(h); setNames(as.numeric(tb), names(tb)) }
-hm <- hubs_of("03_seed_stability_vst_table1_sample_no.tsv"); hr <- hubs_of("03_seed_stability_vst_table1_pergroup_no.tsv")
-stopifnot(length(hm) == 100, length(hr) == 100)
-fm <- freq_of(hm); fr <- freq_of(hr)
-both <- sapply(list(hm, hr), function(H) sum(sapply(H, function(h) all(c("AIM2", "FHOD3") %in% h))))
-exact <- sapply(list(hm, hr), function(H) sum(sapply(H, function(h) setequal(h, c("AIM2", "FHOD3")))))
-genes <- unique(c(names(sort(fm, decreasing = TRUE))[1:8], names(sort(fr, decreasing = TRUE))[1:8], "AIM2", "FHOD3"))
-val <- function(f, g) ifelse(is.na(f[g]), 0, f[g])
-f <- rbind(data.frame(gene = genes, split = "Simple random (Methods)", pct = 100 * val(fm, genes)),
-           data.frame(gene = genes, split = "Stratified (Results)", pct = 100 * val(fr, genes)))
-ord <- genes[order(-val(fm, genes), -val(fr, genes))]              # 단순 무작위 기준 내림차순, 같으면 군별 분할 기준
-f$gene <- factor(f$gene, levels = rev(ord))
-f$split <- factor(f$split, levels = c("Stratified (Results)", "Simple random (Methods)"))   # 묶음 안에서 단순 무작위가 위
-hubcol <- ifelse(rev(ord) %in% c("AIM2", "FHOD3"), RED, "black")   # 논문 허브 유전자 = 빨간 이름(막대는 회색 두 톤)
-pb <- ggplot(f, aes(x = pct, y = gene, fill = split)) +
-  geom_col(position = position_dodge(0.8), width = 0.76) +
-  geom_text(aes(label = round(pct)), position = position_dodge(0.8), hjust = -0.25, size = 2.0, family = FONT, colour = "grey25") +
-  annotate("text", x = 55.5, y = 2.5, hjust = 1, vjust = 0.5, size = 2.2, family = FONT, colour = RED, lineheight = 0.95,
-           label = sprintf("AIM2 & FHOD3 together:\nsimple random %d/100\nstratified %d/100", both[1], both[2])) +
-  scale_fill_manual(values = c(`Simple random (Methods)` = "grey40", `Stratified (Results)` = "grey78"),
-                    breaks = c("Simple random (Methods)", "Stratified (Results)"), name = NULL) +
-  scale_x_continuous(limits = c(0, 56), breaks = seq(0, 50, 10), expand = c(0, 0)) +
-  labs(x = "Selected by all three methods\n(% of 100 random splits)", y = NULL) + theme_ms +
-  theme(axis.text.y = suppressWarnings(element_text(colour = hubcol, face = ifelse(hubcol == RED, "bold", "plain"))),
-        legend.position = "top", legend.direction = "vertical", legend.justification = "left",
-        legend.margin = margin(0, 0, -4, 0), legend.text = element_text(size = 6.5), legend.key.size = unit(2.6, "mm"))
+# (b) 저자 코드 · 군별 65% 분할, 시드 1~100(09_reply_splits.R). 시드 100 = 논문 분할
+st <- rd("09_stability_authors_100.tsv", colClasses = "character"); st <- st[st$method == "hub", ]
+hb <- lapply(split(st$genes, as.integer(st$seed)), function(g) if (g == "") character(0) else strsplit(g, ",")[[1]])
+stopifnot(length(hb) == 100)
+fq <- sort(table(unlist(hb)), decreasing = TRUE)
+both <- sum(sapply(hb, function(h) all(c("AIM2", "FHOD3") %in% h)))
+genes <- unique(c(names(fq)[1:8], "AIM2", "FHOD3"))
+f <- data.frame(gene = genes, pct = as.numeric(fq[genes]))
+f$gene <- factor(f$gene, levels = rev(f$gene[order(-f$pct)]))
+hubcol <- ifelse(levels(f$gene) %in% c("AIM2", "FHOD3"), RED, "black")   # 논문 허브 유전자 = 빨간 이름
+pb <- ggplot(f, aes(x = pct, y = gene)) +
+  geom_col(width = 0.66, fill = "grey55") +
+  geom_text(aes(label = pct), hjust = -0.25, size = 2.2, family = FONT, colour = "grey25") +
+  annotate("text", x = 47, y = 2, hjust = 1, vjust = 0.5, size = 2.3, family = FONT, colour = RED, lineheight = 0.95,
+           label = sprintf("AIM2 & FHOD3\ntogether: %d/100", both)) +
+  scale_x_continuous(limits = c(0, 47), breaks = seq(0, 40, 10), expand = c(0, 0)) +
+  labs(x = "Selected by all three methods\n(% of 100 stratified splits)", y = NULL) + theme_ms +
+  theme(axis.text.y = suppressWarnings(element_text(colour = hubcol, face = ifelse(hubcol == RED, "bold", "plain"))))
 
 # (c) 누수: 같은 분할끼리 선으로 잇고, 두 중앙값을 굵은 선으로 잇는다
-lk <- rd("05_leakage_100seeds.tsv")
+lk <- rd("09_leakage_authors_100.tsv")   # 저자 분할(09_reply_splits.R) 위의 누수
 lk <- lk[!is.na(lk$auc_clean), ]
-long <- rbind(data.frame(seed = lk$seed, sel = "All 31\n(published)", auc = lk$auc_leaky),   # 왼쪽 = 논문 방식, 오른쪽 = 학습만(본문 "0.733 → 0.664" 순서)
+long <- rbind(data.frame(seed = lk$seed, sel = "All 31\n(published)", auc = lk$auc_leaky),   # 왼쪽 = 논문 방식, 오른쪽 = 학습만
               data.frame(seed = lk$seed, sel = "Training\nonly", auc = lk$auc_clean))
 long$sel <- factor(long$sel, levels = c("All 31\n(published)", "Training\nonly"))
 med <- aggregate(auc ~ sel, long, median)
@@ -96,14 +88,14 @@ pc <- ggplot(long, aes(x = sel, y = auc)) +
   geom_line(data = med, aes(group = 1), colour = "black", linewidth = 0.8) +
   geom_crossbar(data = med, aes(ymin = auc, ymax = auc), width = 0.4, linewidth = 0.45, colour = "black") +
   geom_text(data = med, aes(label = sprintf("%.3f", auc)), nudge_x = c(-0.36, 0.36), hjust = c(1, 0), size = 2.6, family = FONT) +
-  annotate("text", x = 1.5, y = 0.875, label = sprintf("Lower in %d of %d splits", n_lower, nrow(lk)), size = 2.4, colour = "grey25", family = FONT) +
-  scale_x_discrete(expand = expansion(add = 0.95)) +
-  scale_y_continuous(limits = c(0.45, 0.885), breaks = seq(0.45, 0.85, 0.1)) +
+  annotate("text", x = 1.5, y = 0.925, label = sprintf("Lower in %d of %d splits", n_lower, nrow(lk)), size = 2.4, colour = "grey25", family = FONT) +
+  scale_x_discrete(expand = expansion(add = 1.05)) +
+  scale_y_continuous(limits = c(0.45, 0.935), breaks = seq(0.45, 0.85, 0.1)) +
   scale_colour_manual(values = c(RED, "grey35"), guide = "none") +
   labs(x = sprintf("DEG selection (%d splits)", nrow(lk)), y = "Test-set AUC\n(median over DEGs)") + theme_ms
 
 fig_repro <- (pa | pb | pc) + plot_layout(widths = c(1.15, 1.1, 0.85)) + plot_annotation(tag_levels = "a")
-save_fig(fig_repro, "Figure2_v7", 7.1, 3.0)
+save_fig(fig_repro, "Figure2_v8", 7.1, 3.0)
 
 ## Figure 1: 코호트 안 비교, Supplementary Figure 1: 논문 DEG 방향 비율
 ex <- rd("05_within_cohort_aim2_fhod3_expr.tsv")
@@ -145,7 +137,7 @@ pe <- ggplot(pe_dat, aes(x = comp, y = pct, fill = cohort)) +
   theme(legend.position = c(0.47, 0.97), legend.background = element_blank(),
         plot.caption = element_text(colour = "grey30", hjust = 0.5, size = 6.5, lineheight = 0.95))
 
-fig_cohort <- ((panel("FHOD3", "GSE141432") | panel("AIM2", "GSE141432")) /      # 본문 순서: GSE141432 FHOD3(a) → AIM2(b) → GSE166047(c, d)
+fig_cohort <- ((panel("FHOD3", "GSE141432") | panel("AIM2", "GSE141432")) /      # 패널 순서: GSE141432 FHOD3(a) → AIM2(b) → GSE166047(c, d)
                (panel("FHOD3", "GSE166047") | panel("AIM2", "GSE166047"))) + plot_annotation(tag_levels = "a")
 save_fig(fig_cohort, "Figure1_v7", 5.6, 4.6)
 save_fig(pe, "SupplementaryFigure1_v1", 3.6, 3.8)

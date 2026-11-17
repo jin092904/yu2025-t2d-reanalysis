@@ -1,4 +1,4 @@
-# Stage 3 (R): 학습/검증 분할 → LASSO · SVM-RFE · RF 로 유전자를 고르고 세 방법의 교집합을 구한다.
+# 학습/검증으로 분할한 뒤 LASSO · SVM-RFE · RF 로 유전자를 고르고 세 방법의 교집합을 구한다.
 # 사전 명세(2026-11-09 고정, Methods 문장 그대로):
 #   입력 vst(blind = TRUE), 논문 DEG 210개, 시료 순서 = 표 1 순서(GSE175495, GSE141432, GSE166047),
 #   set.seed(100) 한 번 → sample(31, 20) 으로 학습 20 / 검증 11 → cv.glmnet(이항, 10겹) λmin

@@ -1,4 +1,4 @@
-# Stage 2 (R): ComBat-Seq 로 배치를 보정하고 DESeq2 로 OT2D vs OH 차등발현을 구한다.
+# ComBat-Seq 로 배치를 보정하고 DESeq2 로 OT2D vs OH 차등발현을 구한다.
 # 사전 명세(2026-11-09 고정): batch = GEO 시리즈, group 없음, 유전자 사전 거르기 없음,
 #   DESeq2 ~condition 기본값, LFC 축소 없음, DEG = padj < 0.05 & |log2FC| >= 2.
 # 실행: Rscript src/r/02_combat_deseq2.R  (프로젝트 폴더에서)

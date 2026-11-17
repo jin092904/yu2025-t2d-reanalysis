@@ -1,8 +1,8 @@
-# Stage 4 (R): 논문 허브 유전자(AIM2·FHOD3)의 학습/검증 ROC AUC 와 95% CI(pROC, DeLong).
-# 사전 명세(2026-11-09 고정): Stage 3 사전 명세와 같은 입력(vst)·같은 분할(set.seed(100); sample(31, 20)).
+# 논문 허브 유전자(AIM2·FHOD3)의 학습/검증 ROC AUC 와 95% CI(pROC, DeLong).
+# 사전 명세(2026-11-09 고정): 03_ml.R 사전 명세와 같은 입력(vst)·같은 분할(set.seed(100); sample(31, 20)).
 #   단독 AUC = 유전자 값 그대로 roc(), 방향은 논문 결과(AIM2 상향, FHOD3 하향)로 고정.
 #   두 유전자 모형 = 학습 자료 glm(이항, AIM2 + FHOD3) 의 예측확률.
-# 이어서 같은 절차를 Stage 3 와 같은 시드 1~100 으로 반복해 검증 AUC 분포를 보고, DEG 210개 전체의 검증 AUC 와 비교한다.
+# 이어서 같은 절차를 03_ml.R stability 와 같은 시드 1~100 으로 반복해 검증 AUC 분포를 보고, DEG 210개 전체의 검증 AUC 와 비교한다.
 # 실행: Rscript src/r/04_roc.R  (프로젝트 폴더에서)
 suppressPackageStartupMessages(library(pROC))
 

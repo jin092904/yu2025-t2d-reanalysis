@@ -1,4 +1,4 @@
-# Stage 7: 논문 Results 의 분할(군마다 65%)로 세 방법 전체를 돌린 결과 요약(Methods 의 단순 무작위 분할과 비교용).
+# 논문 Results 의 분할(군마다 65%)로 세 방법 전체를 돌린 결과 요약(Methods 의 단순 무작위 분할과 비교용).
 # 입력: 03_ml.R split=pergroup 의 결과(시드 100 한 번 + 시드 1~100 반복). 새 계산은 시드 100 분할의 검증 AUC 뿐(04_roc.R 와 같은 방식 · 방향).
 #   results/tables/03_ml_R_vst_table1_pergroup_no.tsv, 03_seed_stability_vst_table1_pergroup_no.tsv,
 #   data/processed/03_split_vst_table1_pergroup_no.tsv (시드 100 학습 시료)

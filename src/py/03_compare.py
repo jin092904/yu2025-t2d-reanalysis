@@ -1,4 +1,4 @@
-"""Stage 3 대조: 표 2(논문 유전자 목록) vs R 사전 명세 vs Python, 그리고 시드 100개 반복(분할 운).
+"""표 2(논문 유전자 목록) vs R 사전 명세 vs Python, 그리고 시드 100개 반복(분할 운).
 
 입력: results/tables/03_ml_{R,py}_vst_table1_sample_no.tsv, 03_seed_stability_vst_table1_sample_no.tsv
 출력: results/tables/03_table2_comparison.tsv, 03_seed_hub_frequency.tsv, results/figures/03_hub_frequency.{png,pdf}

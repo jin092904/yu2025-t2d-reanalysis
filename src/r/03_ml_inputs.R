@@ -1,8 +1,8 @@
-# Stage 3 준비: 기계학습 입력 행렬(시료 × 논문 DEG 210개)을 만든다.
+# 기계학습 입력 행렬(시료 × 논문 DEG 210개)을 만든다.
 # 원문에 입력값 종류가 없어 후보 4가지를 만든다. 그림 2D 가 "vst-transformed data" 라서 사전 명세는 vst(기본값 blind = TRUE).
 #   vst      : DESeq2 vst(blind = TRUE)      vst_nb : vst(blind = FALSE)
 #   norm     : 크기 인자로 정규화한 count     lognorm: log2(정규화 count + 1)
-# 보정 count 는 Stage 2 재현 설정(ComBat-Seq 군 공변량 + protein-coding, R)이다.
+# 보정 count 는 02_combat_deseq2.R 의 재현 설정(ComBat-Seq 군 공변량 + protein-coding)이다.
 # 실행: Rscript src/r/03_ml_inputs.R  (프로젝트 폴더에서)
 suppressPackageStartupMessages({library(DESeq2); library(readxl)})
 

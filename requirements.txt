@@ -1,5 +1,5 @@
 # Python 3.10 environment used for the analyses (R side: R 4.6.1 with sva 3.60.0, DESeq2 1.52.0, glmnet 5.0,
-# caret 7.0.1, kernlab 0.9.33, randomForest 4.7.1.2, pROC 1.19.1, readxl 1.5.0.1, ggplot2 4.0.3, ggpubr 1.0.0, patchwork 1.3.2)
+# caret 7.0.1, kernlab 0.9.33, randomForest 4.7.1.2, pROC 1.19.1, dplyr 1.2.1, readxl 1.5.0.1, ggplot2 4.0.3, ggpubr 1.0.0, patchwork 1.3.2)
 numpy==2.2.6
 pandas==2.3.3
 scipy==1.15.3

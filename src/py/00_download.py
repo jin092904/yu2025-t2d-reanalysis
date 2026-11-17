@@ -1,7 +1,7 @@
-"""Stage 0: 원자료와 논문 파일을 내려받는다.
+"""원자료와 논문 파일을 내려받는다.
 
 논문 Methods: "Raw count matrices and the human genome annotation table provided by
-the National Center for Biotechnology Information" → GEO 의 NCBI 생성 count 를 쓴다.
+the National Center for Biotechnology Information". 그래서 GEO 의 NCBI 생성 count 를 쓴다.
 실행: python src/py/00_download.py  (프로젝트 폴더에서)
 """
 import hashlib

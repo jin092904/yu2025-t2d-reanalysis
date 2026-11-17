@@ -1,9 +1,9 @@
-"""Stage 3 (Python): R 의 LASSO(glmnet) · SVM-RFE(caret rfe + kernlab) · RF(randomForest) 를 scikit-learn 으로 따로 구현한다.
+"""R 의 LASSO(glmnet) · SVM-RFE(caret rfe + kernlab) · RF(randomForest) 를 scikit-learn 으로 따로 구현한다.
 
 R 과 같은 학습 시료·같은 겹(LASSO foldid, rfe 겹)·같은 λ 경로를 받아 와서, 차이가 구현에서만 나오게 한다.
 - LASSO: glmnet 목적함수 (1/n)Σlogloss + λ‖β‖₁ (표준화, 모집단 SD) = sklearn C = 1/(nλ). CV 이탈도는 확률을 [1e-5, 1−1e-5] 로 자른다(glmnet 과 같음).
-- SVM-RFE: caret caretFuncs 와 같은 순서 — 겹마다 단변량 ROC 면적 max(AUC, 1−AUC) 로 순위 → 크기별 RBF SVM 정확도 → 최고 정확도의 가장 작은 크기.
-  kernlab 은 열을 표본 SD 로 표준화하고, 상수 열이 하나라도 있으면 표준화를 통째로 끈다 → 똑같이 한다. kernlab sigma = sklearn gamma.
+- SVM-RFE: caret caretFuncs 와 같은 순서: 겹마다 단변량 ROC 면적 max(AUC, 1−AUC) 로 순위 → 크기별 RBF SVM 정확도 → 최고 정확도의 가장 작은 크기.
+  kernlab 은 열을 표본 SD 로 표준화하고, 상수 열이 하나라도 있으면 표준화를 통째로 끈다. 여기서도 똑같이 한다. kernlab sigma = sklearn gamma.
 - RF: 나무 500, mtry = floor(√210) = 14. 난수열이 R 과 달라 상위 10 겹침만 본다.
 실행: python src/py/03_ml.py [tag]  (기본 tag = vst_table1_sample_no, 프로젝트 폴더에서)
 """

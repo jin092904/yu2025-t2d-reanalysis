@@ -1,4 +1,4 @@
-"""Stage 2 (Python): R 의 sva::ComBat_seq·DESeq2 를 Python 판(inmoose·pydeseq2)으로 따로 구현한다.
+"""R 의 sva::ComBat_seq·DESeq2 를 Python 판(inmoose·pydeseq2)으로 따로 구현한다.
 
 사전 명세는 src/r/02_combat_deseq2.R 와 같다. 탐색용 인자도 같다: group(ComBat-Seq 에 군 공변량), pc(protein-coding 만).
 pydeseq2 의 alpha 기본값은 0.05 라서 DESeq2 results() 기본값(0.1)에 맞춘다(독립 필터링 문턱에 쓰인다).

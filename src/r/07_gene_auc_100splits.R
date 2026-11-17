@@ -1,4 +1,4 @@
-# Stage 7: 유전자별로 "분할 100번 중 검증 AUC = 1 인 횟수"를 센다(04_roc.R 와 같은 입력·분할·방향, 새 분석 아님).
+# 유전자별로 "분할 100번 중 검증 AUC = 1 인 횟수"를 센다(04_roc.R 와 같은 입력·분할·방향, 새 분석 아님).
 # 04_test_auc_100seeds_R.tsv 는 분할별 요약(AUC 1 인 DEG 비율)만 있어서, AIM2 82번 · FHOD3 100번과 같은 단위로 비교하려고 만든다.
 # 출력: results/tables/07_gene_auc1_splits.tsv (유전자, AUC 1 분할 수, 31명 전체 AUC)
 # 실행: Rscript src/r/07_gene_auc_100splits.R  (프로젝트 폴더에서)

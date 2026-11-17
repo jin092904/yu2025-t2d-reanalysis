@@ -1,4 +1,4 @@
-"""Stage 5 정리: ① 코호트 안 비교(Python 으로 Wilcoxon·AUC 재계산해 R 과 대조) ② 누수 비교, 그림 3장.
+"""① 코호트 안 비교(Python 으로 Wilcoxon·AUC 재계산해 R 과 대조) ② 누수 비교, 그림 3장.
 
 입력: results/tables/05_within_cohort_*.tsv (src/r/05_within_cohort.R), 05_leakage_100seeds.tsv (src/r/05_leakage.R)
 출력: results/tables/05_within_cohort_aim2_fhod3_tests_py.tsv, 05_within_cohort_deg210_summary.tsv,
@@ -46,7 +46,7 @@ print(m[["cohort", "gene", "comparison", "n1", "n2", "median_diff", "auc_R", "p_
 
 # ① DEG 210개: 코호트 안 비교에서 논문과 같은 방향인 비율, padj < 0.05 수
 de = pd.read_csv(TAB / "05_within_cohort_deg210.tsv", sep="\t")
-de = de[de.log2FoldChange.notna()].copy()  # GSE166047(여성)에서 Y 염색체 유전자 HSFY1 은 전부 0 이라 빠진다 → 209개
+de = de[de.log2FoldChange.notna()].copy()  # GSE166047(여성)에서 Y 염색체 유전자 HSFY1 은 전부 0 이라 빠져 209개가 남는다
 de["same_sig"] = (de.padj < 0.05) & de.same_direction
 de["lfc_paper_dir"] = de.log2FoldChange * np.sign(de.paper_lfc)
 summ = (de.groupby(["cohort", "comparison"])

@@ -1,4 +1,4 @@
-"""Stage 4 (Python): src/r/04_roc.R 와 같은 AUC·DeLong 95% CI 를 scikit-learn + 직접 구현으로 계산하고 R 과 대조한다.
+"""src/r/04_roc.R 와 같은 AUC·DeLong 95% CI 를 scikit-learn + 직접 구현으로 계산하고 R 과 대조한다.
 
 분할은 R 이 낸 data/processed/04_splits_100.tsv(시드 1~100)를 그대로 쓴다(Python 은 R 의 난수열을 만들 수 없다). 사전 명세 분할 = 시드 100.
 DeLong 분산은 위치값(placement) 공식으로 직접 계산한다(pROC 의 method = "delong" 과 같은 식).
@@ -29,7 +29,7 @@ splits = pd.read_csv(ROOT / "data/processed/04_splits_100.tsv", sep="\t")
 
 
 def delong_ci(score, yy):
-    """AUC 와 DeLong 95% CI(위치값 공식). AUC = 1 이면 분산 0 → CI 1–1 (pROC 와 같음)."""
+    """AUC 와 DeLong 95% CI(위치값 공식). AUC = 1 이면 분산이 0 이라 CI 는 1–1 (pROC 와 같음)."""
     pos, neg = score[yy == 1], score[yy == 0]
     psi = (pos[:, None] > neg[None, :]) + 0.5 * (pos[:, None] == neg[None, :])
     auc = psi.mean()
@@ -77,7 +77,7 @@ print("검증 AUC = 1 인 DEG 비율 중앙: %.3f, ≥ 0.9 비율 중앙: %.3f" 
 comp = r_seeds.groupby(["n_OH_test", "n_OT2D_test"]).size()
 print("검증 11명 구성(OH, OT2D) 분포:", comp.to_dict())
 
-# 3) 그림: 시드 100개 검증 AUC — AIM2, FHOD3, DEG 210개 중앙값
+# 3) 그림: 시드 100개 검증 AUC (AIM2, FHOD3, DEG 210개 중앙값)
 fig, ax = plt.subplots(figsize=(6.5, 4.6))
 cols = [("AIM2", "AIM2", "#B45309"), ("FHOD3", "FHOD3", "#B45309"), ("deg_median", "DEG 210개\n중앙값", "#64748b")]
 rng = np.random.default_rng(0)

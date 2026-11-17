@@ -5,7 +5,7 @@ Code and results for the Matters Arising comment "Type 2 diabetes is confounded 
 ## What is reanalysed
 
 - The published list of 210 differentially expressed genes (DEGs; Supplementary Tables S1–S2 of Yu et al.) under four ComBat-seq/DESeq2 settings
-- Feature selection by LASSO, SVM-RFE and random forest in the training–test split and over 100 splits of two kinds, with single-gene test-set AUCs
+- Feature selection by LASSO, SVM-RFE and random forest in the training–test split and over 100 splits, with single-gene test-set AUCs, first with our implementation of the published Methods and then with the feature-selection code that the authors shared with us on 17 November 2026
 - DEG selection from the training samples only (leakage)
 - Within-cohort comparisons of lean, obese non-T2D and obese T2D participants in GSE141432 and GSE166047, without batch correction
 - An independent Python re-implementation of each step, run on the same splits and cross-validation folds
@@ -22,9 +22,11 @@ Code and results for the Matters Arising comment "Type 2 diabetes is confounded 
 ## Figures and tables
 
 - Figure 1 (FHOD3 and AIM2 within cohorts): `05_within_cohort.R` → `05_within_cohort_aim2_fhod3_expr.tsv`, `05_within_cohort_aim2_fhod3_tests_R.tsv`
-- Figure 2a (DEGs by setting): `02_combat_deseq2.R`, `02_compare.py` → `02_deg_by_spec.tsv`
-- Figure 2b (genes selected by all three methods over 100 splits): `03_ml.R stability` with both split types → `03_seed_stability_vst_table1_{sample,pergroup}_no.tsv`
-- Figure 2c (leakage): `05_leakage.R` → `05_leakage_100seeds.tsv`
+- Figure 2a (DEGs by setting): `02_combat_deseq2.R`, `02_compare.py`, `09_reply_gene_filter.R` → `02_deg_by_spec.tsv`, `09_reply_gene_filter.tsv`
+- Figure 2b (genes selected by all three methods over 100 stratified splits, authors' code): `09_reply_splits.R` → `09_stability_authors_100.tsv`, `09_auc1_*authors_100.tsv`
+- Figure 2c (leakage, same splits): `05_leakage.R splits=… out=…` → `09_leakage_authors_100.tsv`
+- The published split and the authors' code: `09_reply_author_code.R`, `09_reply_author_split_detail.R` → `09_reply_author_code.tsv`, `09_reply_author_split_detail.tsv`
+- Earlier analyses with our own implementation (simple random and within-group splits): `03_ml.R stability`, `05_leakage.R`, `07_*` → `03_seed_stability_*`, `05_leakage_100seeds.tsv`, `07_*.tsv`
 - Supplementary Figure S1 (published DEGs by direction within cohorts): `05_within_cohort.R`, `05_figures.py` → `05_within_cohort_deg210_summary.tsv`
 - Comparison with Supplementary Tables S1–S2: `02_compare.py` → `02_paper_vs_R_group_pc.tsv`
 - R–Python agreement: `02_deg_by_spec.tsv`, `03_table2_comparison.tsv`, `04_roc_R_vs_py.tsv`, `05_within_cohort_aim2_fhod3_tests_py.tsv`
@@ -59,11 +61,17 @@ python src/py/05_figures.py                   # Python check of the within-cohor
 Rscript src/r/07_pergroup_split.R             # summary of within-group splits
 python src/py/07_split_composition.py         # simple random splits grouped by test composition
 Rscript src/r/07_gene_auc_100splits.R         # number of splits with a test AUC of 1, per gene
+Rscript src/r/09_reply_gene_filter.R          # gene filters described in the authors' reply (17 November 2026)
+Rscript src/r/09_reply_author_code.R          # the authors' feature-selection code, 4 inputs x 6 sample orders (8 cores)
+Rscript src/r/09_reply_author_split_detail.R  # the published split in detail
+Rscript src/r/09_reply_splits.R               # the authors' code over 100 stratified splits (16 cores)
+Rscript src/r/05_leakage.R splits=data/processed/09_splits_authors_100.tsv out=results/tables/09_leakage_authors_100.tsv
 Rscript src/r/07_manuscript_figures.R         # Figures 1-2 and Supplementary Figure S1 (PDF, PNG)
 python src/py/07_figure_jpeg.py               # JPEG copies of the figures
 ```
 
-- Run R scripts from the repository root (they use relative paths). The 8-core steps use `parallel::mclapply`, which does not run in parallel on Windows.
+- Run R scripts from the repository root (they use relative paths). The multi-core steps use `parallel::mclapply`, which does not run in parallel on Windows.
+- `09_reply_*.R` follow the feature-selection code shared by the authors of the original article (personal communication, 17 November 2026); the sample order and input that reproduce the published split are given in `09_reply_author_split_detail.R`.
 - `02_compare.py`, `03_compare.py`, `04_roc.py` and `05_figures.py` also write working figures with Korean labels to `results/figures/`; these are not included.
 - Every random step uses a fixed seed.
 

@@ -1,4 +1,4 @@
-"""Stage 2 대조: 논문 표 S1·S2(DEG 210개)와 R·Python 실행 결과를 유전자 단위로 비교한다.
+"""논문 표 S1·S2(DEG 210개)와 R·Python 실행 결과를 유전자 단위로 비교한다.
 
 입력: results/tables/02_deseq2_{R,R_pc,R_group,R_group_pc,py,py_group_pc}.tsv.gz (02_combat_deseq2.R/.py 출력)
 출력: results/tables/02_deg_by_spec.tsv, 02_paper_vs_R_group_pc.tsv, results/figures/02_deg_by_spec.{png,pdf}
@@ -45,7 +45,7 @@ by_spec = pd.DataFrame(rows)
 by_spec.to_csv(TAB / "02_deg_by_spec.tsv", sep="\t", index=False)
 print(by_spec.to_string(index=False), "\n")
 
-# 2) 재현 설정(R_group_pc) — 논문 210개 유전자별 수치 차
+# 2) 재현 설정(R_group_pc): 논문 210개 유전자별 수치 차
 r = res["R_group_pc"].set_index("Symbol")
 m = paper.join(r, rsuffix="_R")
 cols = ["baseMean", "log2FoldChange", "lfcSE", "stat", "pvalue", "padj"]

@@ -1,9 +1,9 @@
-"""Stage 7: 원고 수치 점검. 원고(영문·한글)의 숫자가 결과 파일에서 나온 값과 같은지 본다.
+"""원고 수치 점검. 원고(영문·한글)의 숫자가 결과 파일에서 나온 값과 같은지 본다.
 
 1) 결과 파일에서 원고에 쓰는 값을 다시 계산해, 그 표기가 영문·한글 원고 본문에 둘 다 있는지 확인한다(없으면 실패).
 2) 원고에 있는데 결과 파일 값도, 원 논문 값(아래 PAPER)도, 방법 설정값도 아닌 숫자를 모두 출력한다(사람이 확인).
 3) 영문과 한글 원고에 나오는 숫자의 종류가 같은지 비교한다(번역·윤문 중 숫자가 바뀌거나 빠졌는지).
-실행: python src/py/07_check_numbers.py  (프로젝트 폴더에서)  → 실패가 있으면 exit 1
+실행: python src/py/07_check_numbers.py  (프로젝트 폴더에서). 실패가 있으면 exit 1
 """
 import csv
 import gzip
@@ -17,8 +17,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 T = ROOT / "results/tables"
 MS = ROOT / "manuscript"
-EN = MS / "Manuscript_MattersArising_v1.7.md"
-KO = MS / "Manuscript_MattersArising_v1.7_KO.md"
+EN = MS / "Manuscript_MattersArising_v1.8.md"
+KO = MS / "Manuscript_MattersArising_v1.8_KO.md"
 
 
 def rows(name):
@@ -39,55 +39,58 @@ def pf(p):
 
 reg = {}  # 이름 → 원고 표기
 
-# Stage 2: ComBat-seq·DESeq2 설정별 DEG 수
+# ComBat-seq·DESeq2 설정별 DEG 수 (원저자 답장으로 확인된 설정은 09_reply_gene_filter.R)
 spec = {r["run"]: r for r in rows("02_deg_by_spec.tsv")}
-reg["DEG 원문대로(R)"] = spec["R"]["deg"]
-FIG = {"DEG 군 공변량(R)": spec["R_group"]["deg"]}   # 그림 1a 에만
-reg["DEG 군 공변량 + protein-coding(R)"] = spec["R_group_pc"]["deg"]
+FIG = {"DEG 원문대로(R)": spec["R"]["deg"], "DEG protein-coding 만(R)": spec["R_pc"]["deg"]}   # 그림 2a 에만
+reg["DEG 군 공변량 + protein-coding(R)"] = spec["R_group_pc"]["deg"]                            # 두 언어 대조(209 대 202)
 reg["DEG Python 같은 설정"] = spec["py_group_pc"]["deg"]
 reg["DEG R·Python 공통"] = spec["py_group_pc"]["paper_recovered"]
-cmp_ = rows("02_paper_vs_R_group_pc.tsv")
-rel = max(abs(float(r[k + "_R"]) - float(r[k])) / abs(float(r[k]))
-          for r in cmp_ if r["padj_R"] not in ("", "NA") for k in ("baseMean", "log2FoldChange", "pvalue"))
+gf = {r["filter"]: r for r in rows("09_reply_gene_filter.tsv")}
+reg["DEG 저자 설정(공변량 + 모두 0 제거)"] = gf["allzero_post"]["deg"]
+reg["그중 논문 목록"] = gf["allzero_post"]["paper_recovered"]
+full = gf["pc_allzero_post"]
+assert full["deg"] == full["paper_recovered"] == "210" and full["extra"] == "0"           # 210개 모두, 그것만
+rel = max(float(full[k]) for k in ("basemean_max_rel_diff", "lfc_max_rel_diff", "pvalue_max_rel_diff"))
+rel = max(rel, abs(float(full["padj_ratio_max"]) - 1), abs(float(full["padj_ratio_min"]) - 1))
 reg["표 S1·S2 최대 상대 차"] = sci(rel)
-rip = next(r for r in cmp_ if r["Symbol"] == "RIPPLY2")
-reg["RIPPLY2 padj 논문"] = f"{float(rip['padj']):.4f}"
-reg["RIPPLY2 padj 우리"] = f"{float(rip['padj_R']):.4f}"
-reg["padj 배율"] = f"{st.median(float(r['padj_R']) / float(r['padj']) for r in cmp_ if r['padj_R'] not in ('', 'NA')):.3f}"
 
-# Stage 3: 분할·선택
-reg["λ 탐색 조합 수"] = str(len(rows("03_lambda_search.tsv")))
-assert not any(r["match"] == "TRUE" for r in rows("03_lambda_search.tsv"))
+# 분할·선택 (저자 코드 · 논문 분할, 09_reply_author_split_detail.R · 09_reply_splits.R)
+det = {r["item"]: r["value"] for r in rows("09_reply_author_split_detail.tsv")}
+assert det["svm_sigma"].startswith("0.0044000412") and det["svm_C"] == "0.5"
+assert det["test_OH"] == "6" and det["test_OT2D"] == "5" and det["test_auc_AIM2"] == "0.933" and det["test_auc_FHOD3"] == "1"
+assert abs(float(det["lambda_pub_rel_diff"])) < 1e-6 and det["lambda_steps_min_to_pub"] == "2"   # 논문 λ = 우리 경로의 두 칸 아래
+reg["우리 λmin"] = det["lambda_min"]
+assert det["lasso_at_pub_vs_published"] == "11 of 11 published; extra PHLDA2"
+reg["SVM-RFE 크기"] = det["rfe_best_size"]
+assert det["rfe_genes_vs_published"] == "23 of 23 published in our 30" and det["rf10_vs_published"] == "2 of 10"
+assert det["hub_at_min"] == "PNPLA1,CD52,AIM2,FHOD3"
+ac = rows("09_reply_author_code.tsv")
+assert sum(r["sigma_match"] == "TRUE" for r in ac) == 2 and {r["input"] for r in ac if r["sigma_match"] == "TRUE"} == {"vst"}   # 같은 군 안 순서 2가지
 by_seed = {}
-for r in rows("03_seed_stability_vst_table1_sample_no.tsv"):
-    by_seed.setdefault(r["seed"], []).append(set(r["genes"].split(",")) if r["genes"] else set())
-hubs = [set.intersection(*v) for v in by_seed.values()]
-reg["정확히 AIM2·FHOD3 분할 수"] = str(sum(h == {"AIM2", "FHOD3"} for h in hubs))
+for r in rows("09_stability_authors_100.tsv"):
+    by_seed.setdefault(r["seed"], {})[r["method"]] = set(r["genes"].split(",")) if r["genes"] else set()
+hubs = [v["hub"] for v in by_seed.values()]
+assert len(hubs) == 100 and by_seed["100"]["hub"] == {"AIM2", "FHOD3", "CD52", "PNPLA1"}
+EXACT = sum(h == {"AIM2", "FHOD3"} for h in hubs)                                       # 원고는 낱말로 씀(아래 문구 확인)
 reg["둘 다 포함 분할 수"] = str(sum({"AIM2", "FHOD3"} <= h for h in hubs))
-freq = {r[""]: float(r["hub"]) for r in rows("03_seed_hub_frequency.tsv")}
+cnt = Counter(g for h in hubs for g in h)
+assert cnt.most_common(1)[0][0] == "STOX1"
 for g in ("STOX1", "FHOD3", "AIM2"):
-    reg[f"공통 선택 비율 {g}"] = f"{round(freq[g] * 100)}%"
-reg["학습 완전 분리 유전자 수"] = str(len(rows("03_train_perfect_auc_genes.tsv")))
-pg = {r["item"]: r["value"] for r in rows("07_pergroup_summary.tsv")}   # Results 방식(군별) 분할, 07_pergroup_split.R
-reg["군별 분할 FHOD3 비율"], reg["군별 분할 AIM2 비율"] = pg["FHOD3_pct"] + "%", pg["AIM2_pct"] + "%"
-reg["군별 분할 둘 다"] = pg["seeds_both_AIM2_FHOD3"]
-assert pg["top_gene"] == "FHOD3" and pg["seed100_hub"] == "CD52,FHOD3" and pg["seeds_exactly_AIM2_FHOD3"] == "0"
-g1 = rows("07_gene_auc1_splits.tsv")
-assert sum(int(r["splits_auc1"]) == 100 for r in g1) == 5                           # 100번 모두 AUC 1 = 31명 전체 완전 분리 DEG 5개('five DEGs including FHOD3')
-assert sum(float(r["auc_all31"]) == 1 for r in g1) == 5
+    reg[f"공통 선택 분할 수 {g}"] = str(cnt[g])
 reg["RF 상위 10 R·Python 공통"] = next(r["R_py_shared"] for r in rows("03_table2_comparison.tsv") if r["method"] == "RF")
 
-# Stage 4: 검증 AUC 100분할(배치 보정값)
-a = rows("04_test_auc_100seeds_R.tsv")
-reg["AIM2 AUC 1 분할 수"] = str(sum(float(r["AIM2"]) == 1 for r in a))
-reg["FHOD3 AUC 1 분할 수"] = str(sum(float(r["FHOD3"]) == 1 for r in a))
-FIG["DEG 검증 AUC 중앙값"] = f"{st.median(float(r['deg_median']) for r in a):.3f}"   # 원고 본문에는 없는 보조 값
-eq1 = st.median(float(r["deg_eq1"]) for r in a)
-reg["분할당 AUC 1 DEG 수(중앙값)"] = str(round(eq1 * 210))
-reg["분할당 AUC 1 DEG 비율"] = f"{round(eq1 * 100)}%"
+# 검증 AUC 100분할(배치 보정값, 저자 분할)
+a = rows("09_auc1_per_split_authors_100.tsv")
+reg["AIM2 AUC 1 분할 수"] = str(sum(r["AIM2"] == "TRUE" for r in a))
+assert sum(r["FHOD3"] == "TRUE" for r in a) == 100                                       # 'in every split'
+g1 = rows("09_auc1_authors_100.tsv")
+assert sum(int(r["splits_auc1"]) == 100 for r in g1) == 5                               # 'five DEGs, including FHOD3'
+eq1 = st.median(int(r["n_auc1"]) for r in a)
+reg["분할당 AUC 1 DEG 수(중앙값)"] = f"{eq1:g}"
+reg["분할당 AUC 1 DEG 비율"] = f"{round(eq1 / 210 * 100)}%"
 
-# Stage 5: 누수
-lk = [r for r in rows("05_leakage_100seeds.tsv") if r["auc_clean"] not in ("", "NA")]
+# 누수
+lk = [r for r in rows("09_leakage_authors_100.tsv") if r["auc_clean"] not in ("", "NA")]   # 저자 분할
 reg["누수 평가 분할 수"] = str(len(lk))
 reg["누수 제외 분할 수"] = str(100 - len(lk))
 reg["누수: 31명 선택 AUC"] = f"{st.median(float(r['auc_leaky']) for r in lk):.3f}"
@@ -99,12 +102,9 @@ reg["누수 없이 고른 목록에 FHOD3"] = str(sum(tf(r["fhod3"]) for r in lk
 reg["누수 없이 고른 목록에 AIM2"] = str(sum(tf(r["aim2"]) for r in lk))
 nd = [int(r["n_deg"]) for r in lk]
 reg["학습만 선택 DEG 수 중앙값"], reg["최소"], reg["최대"] = str(round(st.median(nd))), str(min(nd)), str(max(nd))
-comp = [r for r in rows("07_hub_by_split_composition.tsv") if r["n"] != "100"][0]
-reg["검증 6·5 분할 수"] = comp["n"]
-FIG["그중 AIM2"], FIG["그중 FHOD3"] = comp["AIM2"], comp["FHOD3"]   # 원고 본문에는 없는 보조 값
-assert comp["both"] == "0"   # 원고는 낱말로 씀: "never selected together" / "한 번도 함께 선택되지 않았다"(아래에서 확인)
 
-# Stage 5: 코호트 안 비교
+
+# 코호트 안 비교
 OPT = {}  # 원고에 안 써도 되는 값(그림에만 있거나 범위로만 씀)
 for r in rows("05_within_cohort_aim2_fhod3_tests_R.tsv"):
     k = f"{r['cohort']} {r['gene']} {r['comparison']}"
@@ -141,11 +141,11 @@ for grp, lab in (("CTRL", "정상체중"), ("OBF", "비만"), ("OBT2D", "비만 
 
 # 원 논문에 적힌 값(표 1·본문·그림), 방법 설정값, 참고문헌 서지 숫자는 결과 파일 밖이라 따로 둔다
 PAPER = {"34", "21", "13", "12", "66.0", "5.0", "66", "5", "11", "9", "31", "18", "20", "210", "0.933", "1.000", "65", "35", "65%", "4",
-         "0.01307997", "24.8", "23.75", "33.75", "38.1", "28/30", "30", "28", "6", "8", "2", "0.05", "1", "3",
+         "0.01307997", "23", "24.8", "23.75", "33.75", "38.1", "28/30", "30", "28", "6", "8", "2", "0.05", "1", "3",
          "2025", "15", "44904", "8"}
 SETTINGS = {"100", "10", "500", "0.004400041", "0.5", "50%", "16", "1.021", "32", "1–210", "1–100", "95%", "99.97%", "209", "202", "200", "1.5", "1–12",
             "4.6.1", "3.60.0", "1.52.0", "5.0", "7.0.1", "0.9.33", "4.7.1.2", "1.19.1", "3.10", "0.5.2", "0.8.1",
-            "1.7.2", "4.4.0", "38", "2026", "13.p13", "50612"}   # 50612 = 소속 우편번호
+            "1.7.2", "4.4.0", "38", "2026", "13.p13", "50612", "1.2.1", "40", "1.000"}   # 40 = rfe 크기 40–200   # 50612 = 소속 우편번호
 
 
 def body(p):  # 참고문헌 목록(서지 숫자)은 빼고 본다. 참고문헌 절만(다음 절 앞까지) 잘라 낸다
@@ -167,10 +167,11 @@ def tokens(text):
 
 fail = 0
 texts = {"EN": body(EN), "KO": body(KO)}
-for lang, phrase in (("EN", "never selected together"), ("KO", "한 번도 함께 선택되지 않았")):
+assert EXACT == 0
+for lang, phrase in (("EN", "in no split were exactly AIM2 and FHOD3 selected"), ("KO", "정확히 AIM2 와 FHOD3 만 선택된 분할은 없었다")):
     if phrase not in texts[lang]:
         fail = 1
-        print(f"[{lang}] 원고에 없음: 6·5 분할에서 둘 다 0번 ({phrase})")
+        print(f"[{lang}] 원고에 없음: 정확히 두 유전자만 선택된 분할 0번 ({phrase})")
 for lang, txt in texts.items():
     toks = tokens(txt)                                  # 낱말 경계로 센 숫자(부분 문자열 일치로 통과하지 않게)
     for k, v in reg.items():
@@ -183,7 +184,7 @@ for lang, txt in texts.items():
     if stray:
         print(f"[{lang}] 결과·논문·설정 어디에도 없는 숫자(확인 필요): {stray}")
 ce, ck = set(tokens(texts["EN"])), set(tokens(texts["KO"]))   # 같은 숫자를 한 언어에서만 되풀이하는 것은 허용(낱말 'six' · '11월' 등)
-WORDS = {"6", "11", "1"}                                          # 영문에서 낱말로 쓴 수(six splits, November, a single)
+WORDS = {"6", "11", "1", "0"}                                     # 영문에서 낱말로 쓴 수(six splits, November, a single, zero counts)
 diff = sorted((ce ^ ck) - WORDS)
 if diff:
     fail = 1
